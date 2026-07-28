@@ -1,0 +1,9 @@
+# Rust build output. Large (~545 MiB) and fully regenerable; note that a
+# `--features cdcl` build also compiles the vendored CaDiCaL into here.
+/target
+
+# Witnesses and checkpoints the solver writes as it runs. Regenerable, and the
+# integration tests overwrite them.
+s45_*_blocks.txt
+*.checkpoint.json
+*.cnf

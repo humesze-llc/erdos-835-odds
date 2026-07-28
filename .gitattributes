@@ -1,0 +1,4 @@
+# Normalise to LF in the repository. This matters for vendor/cadical: the
+# claim in vendor/PATCHES.md is that exactly one file differs from upstream
+# rel-2.1.3, and a line-ending rewrite would make that undiffable.
+* text=auto eol=lf
