@@ -302,6 +302,43 @@ Three bugs surfaced building it, all worth knowing:
   are not, and 644k undeletable ones strangle BCP. 146 → 489 external
   conflicts/s on that change alone.
 
+#### The three-hour run — the only budget large enough to mean anything
+
+`s45 cdcl -v 15 --timeout 10800`, tight mode, branch 0 (`lambda [5]`) alone:
+
+```
+c conflicts:        20213497     1911.97 per second
+c propagations:   3287211562        0.31 M per second
+c learned:         20337774      100.61 % per conflict
+c learned_lits:  1473966011                  (72.5 literals per clause, pre-shrink)
+c shrunken:       503512028       34.16 % of learned literals
+c reduced:         17013042       84.17 % per conflict
+c restarts:          577244       35.02 interval
+RESULT: UNKNOWN     wall 10800.03s
+```
+
+**Branch 0 did not close in three hours.** The native DPLL closes *both*
+branches in 13m36s.
+
+The load-bearing detail is **throughput decay**. Conflict rate by sample
+length: 8,844/s at 60s, 5,926/s at 120s, **1,912/s averaged over three
+hours**. Propagation rate falls the same way, 1.38M/s to 0.31M/s. The clause
+database outgrows what reduction can control — raw learned clauses average
+72.5 literals, and 84% of a conflict's worth of clauses is discarded per
+conflict. Against the native engine's ~140k conflicts/s this is a **~73x**
+per-conflict penalty at three hours, not the ~16x a one-minute sample shows.
+
+**What this does and does not establish.** It establishes that CDCL(T) is
+uncompetitive here on wall clock, decisively: even a generous assumption about
+how few conflicts learning ultimately needs cannot survive a 73x and widening
+per-conflict cost. It does **not** establish that learning fails to cut the
+search, because branch 0 never closed — 20.2M conflicts is a lower bound on
+what CDCL(T) needs, and the DPLL engine's ~57M for the same branch is not
+directly comparable to an unfinished run. An earlier draft of this section
+asserted the stronger claim from an arithmetic slip (a 50M conflict estimate
+extrapolated from the 120s rate, against an actual 20.2M). The weaker claim is
+the supported one and is sufficient.
+
 #### Reading the cost correctly
 
 An intermediate diagnosis here was **wrong** and is worth recording, because
